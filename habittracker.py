@@ -77,7 +77,17 @@ def login():
         return redirect(url_for('register'))
     
     return render_template('login.html', form=form)
-    
+
+# logout
+@app.route('/logout',methods=['POST'])
+def logout():
+    session.clear()
+    flash('You are logout','success')
+    return redirect(url_for('login'))
+
+@app.route('/add_habit', methods=['POST','GET'])
+def add_habit():
+    pass
             
                 
 
