@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Habits</title>
+</head>
+<body>
+    <center>
+        <form method="POST" action="{{ url_for('add_habits')}}">
+            {{ form.hidden_tag() }}
+            {{ form.myhabit.label }} <br>
+            {{ form.myhabit(size=20, placeholder="Enter the habit name ")}} <br>
+
+            {{ form.habit_frequency.label}} <br>
+            {{ form.habit_frequency(size=20,placeholder='DAILY/WEEKLY')}} <br>
+
+            {{ form.submit() }}
+
+        </form>
+        <!-- <a method='GET' href="{{url_for('show_habits')}}">Your Habits</a> -->
+    </center>
+</body>
+</html>

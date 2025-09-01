@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: auto;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>   
+   <center><h2 style="color: darkgray;">Welcome, {{ session['username'] }}!</h2></center>
+    <div>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Habits</th>
+                <th>Frequency</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% if my_data %}
+                {% for data in my_data %}
+                <tr>
+                    <td>{{ data[0] }}</td>
+                    <td>{{ data[1] }}</td>
+                    <td>{{ data[2] }}</td>
+                    <td>{{ data[3] }}</td>
+                    <td>
+                        {% if data[3] != 'done' %}
+                        <form method="POST" action="{{ url_for('mark_done', id=data[0]) }}">
+                            <button type="submit">Done</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5">No habits found. Add one!</td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+</body>
+</html>

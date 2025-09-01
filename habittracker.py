@@ -2,7 +2,7 @@ from flask import Flask,url_for,redirect,render_template,request,session
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 from flask import flash,get_flashed_messages
-from forms import RegisterForm,LoginForm
+from forms import RegisterForm,LoginForm,addHabitForm
 # .env
 from dotenv import load_dotenv
 import os
@@ -64,11 +64,11 @@ def login():
 
         if user:
             hashed_pass = user[3]
-            if bcrypt.check_password_hash(password,hashed_pass):
+            if bcrypt.check_password_hash(hashed_pass,password):
                 session['username'] = user[2]
-                session['user_id'] = user[1]
+                session['user_id'] = user[0]
                 flash('Login successfull','success')
-                return render_template('application.html')
+                return redirect(url_for('add_habits'))  
             else:
                 flash('Incorrect password','message')
                 return redirect(url_for('login'))
@@ -85,12 +85,54 @@ def logout():
     flash('You are logout','success')
     return redirect(url_for('login'))
 
-@app.route('/add_habit', methods=['POST','GET'])
-def add_habit():
-    pass
-            
-                
+
+# Add habits
+@app.route('/add_habits', methods=['POST','GET'])
+def add_habits():
+    # check if user logged in 
+    if 'user_id' not in session:
+        flash('Please login first','warning')
+        return redirect(url_for('login'))
+    # else go for adding habits
+    form = addHabitForm()
+    if form.validate_on_submit():
+        habits = form.myhabit.data
+        its_frequency = form.habit_frequency.data
+
+        # db
+        cursor = mysql.connection.cursor()
+        cursor.execute('INSERT INTO habits (user_id,habit_name,frequency) VALUES (%s,%s,%s)',(session['user_id'],habits,its_frequency))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Task has been successfully added into database.',"success")
+        return redirect(url_for('show_habits'))
+    
+    return render_template('add_habits.html', form=form)
 
 
+@app.route('/show_habits', methods=['GET'])
+def show_habits():
+    # check if user logged in
+    if 'user_id' not in session:
+        flash('Please login first','warning')
+        redirect(url_for('login'))
 
+    # retrieve data from database
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id,habit_name,frequency,status FROM habits WHERE user_id =%s', (session['user_id'],))
+    user_data = cursor.fetchall()
+    cursor.close()
+    return render_template('show_habits.html', my_data=user_data, username=session.get('username'))
+
+@app.route('/mark_done/<int:id>',methods=['POST'])
+def mark_done(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('UPDATE habits SET status="done" where id=%s', (id,))
+    mysql.connection.commit()
+    cursor.close()
+    flash('Status Updated','success')
+    return redirect(url_for('show_habits'))
+
+
+# run app
 app.run(debug=True)

@@ -15,3 +15,10 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(),Length(min=6,max=20)])
     password = PasswordField('Password', validators=[DataRequired(),Length(min=8,max=20)])
     submit = SubmitField('Login')
+
+
+# add habits form
+class addHabitForm(FlaskForm):
+    myhabit = StringField('Habit', validators=[DataRequired()])
+    habit_frequency = StringField('Frequency', validators=[DataRequired()])
+    submit = SubmitField('Add habit')
