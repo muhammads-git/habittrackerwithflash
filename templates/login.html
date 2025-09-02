@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
 </head>
 <body>
     <center>
@@ -15,7 +16,7 @@
             {% endfor %}
         {% endif %}
         {% endwith %}
-                <!-- login form -->
+    
         <form method="POST" action="{{ url_for('login')}}">
             {{ form.hidden_tag() }}
             {{ form.username.label}} <br>
