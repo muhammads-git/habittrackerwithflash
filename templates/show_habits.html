@@ -3,9 +3,14 @@
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
 </head>
-<body>   
-   <center><h2 style="color: darkgray;">Welcome, {{ session['username'] }}!</h2></center>
-    <div>
+<body>  
+    <div class="container">
+        <div class="username">
+            Welcome, {{ session['username'] }}!
+        </div>
+
+        <h1>Your Habits</h1>
+
         <table>
             <tr>
                 <th>ID</th>

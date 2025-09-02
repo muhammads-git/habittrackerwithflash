@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Habits</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
-    <center>
-        <h1>Add Habits</h1>
-    </center>
 </head>
 <body>
-    <center>
+    <div class="container">
+        <h1>Add Habits</h1>
+
         <!-- flash messages  -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div 
-                    class="alert alert-{{ category }}">
+                <div class="alert alert-{{ category }}">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -25,18 +23,19 @@
         
         <form method="POST" action="{{ url_for('add_habits')}}">
             {{ form.hidden_tag() }}
-            {{ form.myhabit.label }} <br>
-            {{ form.myhabit(size=20, placeholder="Enter the habit name ")}} <br>
+            
+            <label>{{ form.myhabit.label }}</label><br>
+            {{ form.myhabit(size=20, placeholder="Enter the habit name ")}} <br><br>
 
-            {{ form.habit_frequency.label}} <br>
-            {{ form.habit_frequency(size=20,placeholder='DAILY/WEEKLY')}} <br><br>
+            <label>{{ form.habit_frequency.label}}</label><br>
+            {{ form.habit_frequency(size=20, placeholder="DAILY/WEEKLY")}} <br><br>
 
             {{ form.submit() }}
-
         </form>
+
         <form method="GET" action="{{ url_for('show_habits')}}">
             <button type="submit">Your Habits</button>
         </form>
-    </center>
+    </div>
 </body>
 </html>
