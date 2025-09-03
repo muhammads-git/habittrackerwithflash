@@ -133,6 +133,19 @@ def mark_done(id):
     flash('Status Updated','success')
     return redirect(url_for('show_habits'))
 
+# remove functionality
+@app.route('/remove/<int:id>',methods=['POST','GET'])
+def remove(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM habits WHERE user_id =%s AND id=%s',(session['user_id'],id))
+    mysql.connection.commit()
+    cursor.close()
+    flash('Habit has been successfully removed from list', 'sucess')
+    return redirect(url_for('show_habits'))
+
+    
+
+
 
 # run app
 app.run(debug=True)

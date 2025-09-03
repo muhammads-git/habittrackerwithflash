@@ -32,7 +32,11 @@
                             <button type="submit">Done</button>
                         </form>
                         {% endif %}
+                        <form action="{{ url_for('remove',id=data[0])}}">
+                            <button type="submit">Remove Habit</button>
+                        </form>
                     </td>
+                    
                 </tr>
                 {% endfor %}
             {% else %}
