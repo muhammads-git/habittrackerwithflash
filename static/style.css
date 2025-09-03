@@ -23,12 +23,46 @@ body {
 h1 {
     margin-bottom: 20px;
     font-size: 24px;
-    color: #1865f2; /* Khan Academy blue */
+    color: #1865f2;
+    animation: fadeSlideUp 1s ease forwards;
 }
+
+@keyframes flutterDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-200px) rotate(-20deg);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-120px) rotate(15deg);
+  }
+  60% {
+    transform: translateY(-50px) rotate(-10deg);
+  }
+  80% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+  90% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* Apply to headings */
+h1.login-title,
+h1.register-title {
+  display: inline-block;  /* important for rotation pivot */
+  animation: flutterDown 2s ease-out;
+}
+
 
 /* Forms */
 form {
     margin-bottom: 15px;
+    display: block;
+    text-align: center;
 }
 
 /* Inputs */
@@ -36,30 +70,29 @@ input[type="text"],
 input[type="password"],
 input[type="email"] {
     width: 100%;
-    padding: 10px;
-    margin: 6px 0;   /* smaller gap */
+    padding: 8px;   /* smaller padding */
+    margin: 6px 0;  /* tighter spacing */
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
 }
 
-/* Buttons (for login/register) */
-form input[type="submit"],
-form button {
-    width: 50%;                 /* smaller width */
-    margin: 10px auto 0 auto;   /* center horizontally */
-    display: block;
-    padding: 8px 12px;
-    font-size: 14px;
+/* Buttons */
+button,
+input[type="submit"] {
     background-color: #1865f2;
     color: white;
     border: none;
+    padding: 8px 12px;    /* smaller button */
+    margin-top: 10px;
+    width: auto;          /* smaller, not stretched */
     border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
 }
 
-form input[type="submit"]:hover,
-form button:hover {
+button:hover,
+input[type="submit"]:hover {
     background-color: #1558d6;
 }
 
@@ -67,9 +100,12 @@ form button:hover {
 .alert {
     padding: 10px;
     margin-bottom: 15px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 14px;
+    background-color: #e8f0fe;
+    color: #1865f2;
 }
+
 .alert-success {
     background: #d4edda;
     color: #155724;
@@ -77,30 +113,4 @@ form button:hover {
 .alert-error {
     background: #f8d7da;
     color: #721c24;
-}
-
-/* Tables for habits (other pages) */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Habit action button */
-table button {
-    padding: 6px 12px;
-    border: none;
-    background: #1865f2;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-table button:hover {
-    background: #1450b0;
 }
