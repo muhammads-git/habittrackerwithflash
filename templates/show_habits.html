@@ -10,6 +10,16 @@
         </div>
 
         <h1>Your Habits</h1>
+        <!-- Flash for Habit remove functionality -->
+        {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                    <div class='alert alert-{{ category }}'>
+                        {{ message }}
+                    </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
 
         <table>
             <tr>
@@ -32,6 +42,7 @@
                             <button type="submit">Done</button>
                         </form>
                         {% endif %}
+
                         <form action="{{ url_for('remove',id=data[0])}}">
                             <button type="submit">Remove Habit</button>
                         </form>
