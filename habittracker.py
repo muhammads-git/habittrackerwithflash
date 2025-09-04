@@ -61,17 +61,28 @@ def login():
         cursor= mysql.connection.cursor()
         cursor.execute('SELECT * FROM user_login WHERE username=%s', (username,))
         user = cursor.fetchone()
+        cursor.close()
+
+        # tries session
+        if 'tries' not in session:
+            session['tries'] = 0
 
         if user:
             hashed_pass = user[3]
             if bcrypt.check_password_hash(hashed_pass,password):
+                session['tries'] = 0
                 session['username'] = user[2]
                 session['user_id'] = user[0]
                 flash('Login successfull','success')
                 return redirect(url_for('add_habits'))  
             else:
-                flash('Incorrect password','message')
-                return redirect(url_for('login'))
+                session['tries'] += 1
+                if session['tries'] >= 3:
+                    flash('Tries limit exceeded','danger')
+                    return redirect(url_for('blocked'))
+                else:
+                    flash('Incorrect password','message')
+                    return redirect(url_for('login'))
         
         flash('No user found','warning')
         return redirect(url_for('register'))
@@ -143,7 +154,7 @@ def remove(id):
     flash('Habit has been successfully removed from list', 'sucess')
     return redirect(url_for('show_habits'))
 
-    
+# 
 
 
 
