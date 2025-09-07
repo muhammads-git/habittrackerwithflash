@@ -1,8 +1,10 @@
+import time
 from flask import Flask,url_for,redirect,render_template,request,session
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 from flask import flash,get_flashed_messages
 from forms import RegisterForm,LoginForm,addHabitForm
+
 # .env
 from dotenv import load_dotenv
 import os
@@ -48,7 +50,6 @@ def register():
     
     return render_template('register.html', form=form)
 
-
 @app.route('/login',methods=['POST','GET'])
 def login():
     form= LoginForm()
@@ -78,8 +79,9 @@ def login():
             else:
                 session['tries'] += 1
                 if session['tries'] >= 3:
+                    session['lock_time'] = time.time()  # returns current time
                     flash('Tries limit exceeded','danger')
-                    return redirect(url_for('blocked'))
+                    return redirect(url_for('blocktime'))     # feature is coming soon!
                 else:
                     flash('Incorrect password','message')
                     return redirect(url_for('login'))
@@ -88,6 +90,31 @@ def login():
         return redirect(url_for('register'))
     
     return render_template('login.html', form=form)
+
+
+@app.route('/blocktime')
+def blocktime():
+    lock_time = session.get('lock_time')
+
+    if not lock_time:
+        return redirect(url_for('login'))
+    
+    now = time.time()
+    elapsed= now - lock_time
+    wait_sec = 60   
+
+    if elapsed >= wait_sec:
+        # reset tries
+        session['tries'] = 0
+        session.pop('lock_time', None)
+        return redirect(url_for('login'))
+    
+    remaining = int(elapsed - wait_sec)
+    return render_template('time.html', remaining=remaining)
+
+
+
+    
 
 # logout
 @app.route('/logout',methods=['POST'])
