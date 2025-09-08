@@ -90,16 +90,19 @@ def login():
     
     return render_template('login.html', form=form)
 
-
+### Still not clicked #######
 @app.route('/blocktime')
 def blocktime():
     lock_time = session.get('lock_time')
+    print("Session create time: ",lock_time)
 
     if not lock_time:
         return redirect(url_for('login'))
     
     now = time.time()
+    print('Current time:', now)
     elapsed= now - lock_time   # why this
+    print('Elapsed time: ',elapsed)
     wait_sec = 120   # ?
 
     if elapsed >= wait_sec:   # how this catches... 
