@@ -25,6 +25,9 @@
             {{ form.password.label }} <br>
             {{ form.password(size=20,placeholder="Enter the password") }} <br><br>
 
+            {{ form.email.label }} <br>
+            {{ form.email(size=20,placeholder="Enter you email") }} <br><br>
+            
             {{ form.submit() }}
         </form>
         <a style="padding: auto;" href="{{ url_for('login')}}">Login</a>

@@ -36,13 +36,13 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-
+        email = form.email.data
         # hash the pass
         hashed_pass = bcrypt.generate_password_hash(password).decode('utf-8')
 
         # save into db
         cursor = mysql.connection.cursor()
-        cursor.execute('INSERT INTO user_login (username,password) VALUES (%s,%s)', (username,hashed_pass))
+        cursor.execute('INSERT INTO user_login (username,password,email) VALUES (%s,%s,%s)', (username,hashed_pass,email))
         mysql.connection.commit()
         cursor.close()
         flash('Registration successfull','success')
@@ -79,9 +79,8 @@ def login():
             else:
                 session['tries'] += 1
                 if session['tries'] >= 3:
-                    session['lock_time'] = time.time()  # returns current time
-                    flash('Tries limit exceeded','danger')
-                    return redirect(url_for('blocktime'))     # feature is coming soon!
+                    session['lock_time'] = time.time()  
+                    return redirect(url_for('blocktime'))     
                 else:
                     flash('Incorrect password','message')
                     return redirect(url_for('login'))
@@ -100,10 +99,10 @@ def blocktime():
         return redirect(url_for('login'))
     
     now = time.time()
-    elapsed= now - lock_time
-    wait_sec = 60   
+    elapsed= now - lock_time   # why this
+    wait_sec = 120   # ?
 
-    if elapsed >= wait_sec:
+    if elapsed >= wait_sec:   # how this catches... 
         # reset tries
         session['tries'] = 0
         session.pop('lock_time', None)
@@ -134,8 +133,8 @@ def add_habits():
     # else go for adding habits
     form = addHabitForm()
     if form.validate_on_submit():
-        habits = form.myhabit.data
-        its_frequency = form.habit_frequency.data
+        habits = form.myhabit.data.capitalize()
+        its_frequency = form.habit_frequency.data.upper()  # upper() for Frequency in capital letters 
 
         # db
         cursor = mysql.connection.cursor()
