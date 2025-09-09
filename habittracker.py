@@ -180,10 +180,17 @@ def mark_done(id):
     cursor = mysql.connection.cursor()
     cursor.execute('UPDATE habits SET status="done" where id=%s', (id,))
     mysql.connection.commit()
-## pending work
+
+    # get user email
     cursor.execute('SELECT * from user_login')
     my_data = cursor.fetchone()
     my_email = my_data[4]
+    
+    # get habit name
+    cursor.execute('Select * from habits where id=%s',(id,))  
+    habit_table = cursor.fetchone()
+    habit_name = habit_table[2]
+    print(habit_table)
 
     msg = Message(
 
@@ -191,7 +198,26 @@ def mark_done(id):
         sender='sirhammad760@gmail.com',
         recipients=[my_email]
     )
-    msg.body = 'You have done your habit today, CONGRATS'
+    msg.html = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+                <div style="max-width: 500px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 2px 6px rgba(0,0,0,0.1);">
+                <h2 style="color: #2c7be5; text-align: center;">Habit Tracker ✅</h2>
+                <p style="font-size: 16px; color: #333;">
+                    Congratulations! 🎉
+                </p>
+                <p style="font-size: 16px; color: #333;">
+                    You have <b>successfully completed your habit '{habit_name}' today</b>. Keep up the great consistency!
+                </p>
+                <hr style="margin: 20px 0;">
+                <p style="font-size: 14px; color: #666; text-align: center;">
+                    — Sent automatically by <b>Habit Tracker App</b>
+                </p>
+                </div>
+            </body>
+            </html>
+            """
+
     mail.send(msg)
     cursor.close()
 # pending work 
