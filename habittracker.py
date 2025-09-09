@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 from flask import flash,get_flashed_messages
 from forms import RegisterForm,LoginForm,addHabitForm
+from flask_mail import Mail,Message
 
 # .env
 from dotenv import load_dotenv
@@ -20,6 +21,16 @@ app.config['SECRET_KEY'] =os.getenv('APP_SECURITY')
 mysql = MySQL(app)
 # hasshing
 bcrypt = Bcrypt(app)
+
+# email config with flask app
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'sirhammad760@gmail.com'
+app.config['MAIL_PASSWORD'] = 'mhfg dbby bcrd eqty '
+app.config['MAIL_DEFAULT_SENDER'] = 'sirhammad760@gmail.com'
+mail = Mail(app)
 
 
 #
@@ -169,7 +180,21 @@ def mark_done(id):
     cursor = mysql.connection.cursor()
     cursor.execute('UPDATE habits SET status="done" where id=%s', (id,))
     mysql.connection.commit()
+## pending work
+    cursor.execute('SELECT * from user_login')
+    my_data = cursor.fetchone()
+    my_email = my_data[4]
+
+    msg = Message(
+
+        subject='HABIT TRACKER APP',
+        sender='sirhammad760@gmail.com',
+        recipients=[my_email]
+    )
+    msg.body = 'You have done your habit today, CONGRATS'
+    mail.send(msg)
     cursor.close()
+# pending work 
     flash('Status Updated','success')
     return redirect(url_for('show_habits'))
 
