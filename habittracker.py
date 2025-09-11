@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from flask import Flask,url_for,redirect,render_template,request,session
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
@@ -11,7 +12,7 @@ from dotenv import load_dotenv
 import os
 # load variables from .env
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__)  
 # configure flask and db 
 app.config['MYSQL_HOST']=os.getenv('DB_HOST')
 app.config['MYSQL_USER']=os.getenv('DB_USER')
@@ -125,10 +126,6 @@ def blocktime():
     remaining = int(elapsed - wait_sec)
     return render_template('time.html', remaining=remaining)
 
-
-
-    
-
 # logout
 @app.route('/logout',methods=['POST'])
 def logout():
@@ -153,6 +150,11 @@ def add_habits():
         # db
         cursor = mysql.connection.cursor()
         cursor.execute('INSERT INTO habits (user_id,habit_name,frequency) VALUES (%s,%s,%s)',(session['user_id'],habits,its_frequency))
+        last_habit_id = cursor.lastrowid    
+
+        # get the current date fron datetime()
+        current_date = datetime.today()
+        cursor.execute('INSERT INTO habit_logs (user_id,habit_id,log_date) VALUES (%s,%s,%s)', (session['user_id'],last_habit_id,current_date))
         mysql.connection.commit()
         cursor.close()
         flash('Task has been successfully added into database.',"success")
@@ -172,14 +174,22 @@ def show_habits():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT id,habit_name,frequency,status FROM habits WHERE user_id =%s', (session['user_id'],))
     user_data = cursor.fetchall()
-    cursor.close()
+
     return render_template('show_habits.html', my_data=user_data, username=session.get('username'))
 
 @app.route('/mark_done/<int:id>',methods=['POST'])
 def mark_done(id):
     cursor = mysql.connection.cursor()
-    cursor.execute('UPDATE habits SET status="done" where id=%s', (id,))
+
+    # update habits table
+    cursor.execute('UPDATE habits SET status="done" where id=%s AND user_id=%s', (id,session['user_id']))
     mysql.connection.commit()
+
+    # update habit_logs table too
+    cursor.execute(""" INSERT INTO habit_logs (user_id,habit_id,log_date,status) 
+                   VALUES (%s,%s,CURDATE(),'done') 
+                   ON DUPLICATE KEY UPDATE status ='done'""",
+                   (session['user_id'],id))
 
     # get user email
     cursor.execute('SELECT * from user_login')
@@ -233,10 +243,6 @@ def remove(id):
     cursor.close()
     flash('Habit has been successfully removed from list', 'sucess')
     return redirect(url_for('show_habits'))
-
-# 
-
-
 
 # run app
 app.run(debug=True)
