@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import date
 from flask import Flask,url_for,redirect,render_template,request,session
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
@@ -153,7 +153,7 @@ def add_habits():
         last_habit_id = cursor.lastrowid    
 
         # get the current date fron datetime()
-        current_date = datetime.today()
+        current_date = date.today()
         cursor.execute('INSERT INTO habit_logs (user_id,habit_id,log_date) VALUES (%s,%s,%s)', (session['user_id'],last_habit_id,current_date))
         mysql.connection.commit()
         cursor.close()
@@ -183,24 +183,25 @@ def mark_done(id):
 
     # update habits table
     cursor.execute('UPDATE habits SET status="done" where id=%s AND user_id=%s', (id,session['user_id']))
-    mysql.connection.commit()
 
+    # GET THE CURRENT TIME
+    current_date = date.today()
     # update habit_logs table too
     cursor.execute(""" INSERT INTO habit_logs (user_id,habit_id,log_date,status) 
-                   VALUES (%s,%s,CURDATE(),'done') 
+                   VALUES (%s,%s,%s,'done') 
                    ON DUPLICATE KEY UPDATE status ='done'""",
-                   (session['user_id'],id))
+                   (session['user_id'],id,current_date))
+    # commit changes
+    mysql.connection.commit()
 
     # get user email
-    cursor.execute('SELECT * from user_login')
-    my_data = cursor.fetchone()
-    my_email = my_data[4]
+    cursor.execute('SELECT email from user_login WHERE id=%s',(session['user_id'],))
+    my_email = cursor.fetchone()[0]   # coz it returns as a tuple (hshdfl@gmail.com,) so we need 0 index
     
     # get habit name
-    cursor.execute('Select * from habits where id=%s',(id,))  
-    habit_table = cursor.fetchone()
-    habit_name = habit_table[2]
-    print(habit_table)
+    cursor.execute('Select habit_name from habits where id=%s',(id,))  
+    habit_name =cursor.fetchone()[0]
+    cursor.close()
 
     msg = Message(
 
@@ -229,8 +230,7 @@ def mark_done(id):
             """
 
     mail.send(msg)
-    cursor.close()
-# pending work 
+
     flash('Status Updated','success')
     return redirect(url_for('show_habits'))
 
@@ -238,7 +238,10 @@ def mark_done(id):
 @app.route('/remove/<int:id>',methods=['POST','GET'])
 def remove(id):
     cursor = mysql.connection.cursor()
+    # delete from habit table
     cursor.execute('DELETE FROM habits WHERE user_id =%s AND id=%s',(session['user_id'],id))
+    # delete from logs table
+    cursor.execute('DELETE FROM habit_logs WHERE user_id=%s',(session['user_id'],))
     mysql.connection.commit()
     cursor.close()
     flash('Habit has been successfully removed from list', 'sucess')
