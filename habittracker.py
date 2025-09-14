@@ -34,7 +34,7 @@ app.config['MAIL_DEFAULT_SENDER'] = 'sirhammad760@gmail.com'
 mail = Mail(app)
 
 
-#
+# dashboard
 @app.route('/')
 def base():
     form = RegisterForm()
